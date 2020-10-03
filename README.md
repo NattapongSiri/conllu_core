@@ -6,7 +6,7 @@ More info on `CoNLL-U` can be found in [here](https://universaldependencies.org/
 `CoNLL-U` is a kind of corpus file format that design to store parts of speech, morphological features, and syntactic dependencies. The dependencies is "content" based, not "function" based. For more explanation, see [here](https://en.wikipedia.org/wiki/Universal_Dependencies#Function_words)
 
 ## Minimum requirement
-- Node.js version > 8
+- Node.js version 8 or above
 - Any browser that support ES2015 (ES6)
 
 ## How to build
