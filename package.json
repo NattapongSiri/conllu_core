@@ -1,6 +1,6 @@
 {
   "name": "conllu-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A core type to handle CoNLL-U format",
   "main": "bin/index.js",
   "homepage": "https://github.com/NattapongSiri/conllu_core",
