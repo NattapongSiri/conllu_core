@@ -870,6 +870,9 @@ export type AdvanceDep = [[HeadId] | [HeadId, EmptyId], DepsRelation]
  * 
  * The mandatory field is `form` and `upos`. All other fields are optional.
  * All optional field, when converted to string, will become "_".
+ * 
+ * If `deps` field is supplied when construct, it will automatically sort it to comply with 
+ * https://universaldependencies.org/format.html#syntactic-annotation
  */
 export class NominalToken implements Token {
     form: string
@@ -922,6 +925,8 @@ export type EmptyId = number
 
 /**
  * `EmptyToken` is a null token type. Everything except `deps` are optional.
+ * It will automatically sort `deps` field according to
+ * https://universaldependencies.org/format.html#syntactic-annotation
  */
 export class EmptyToken implements Token {
     form?: string
