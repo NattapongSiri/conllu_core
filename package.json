@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "description": "A core type to handle CoNLL-U format",
   "main": "bin/index.js",
+  "homepage": "https://github.com/NattapongSiri/conllu_core",
+  "bugs": {
+    "url": "https://github.com/NattapongSiri/conllu_core/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NattapongSiri/conllu_core.git"
+  },
+  "type": "module",
+  "types": "bin/index.d.ts",
   "scripts": {
     "build": "tsc",
     "clean": "rimraf ./bin/*",
