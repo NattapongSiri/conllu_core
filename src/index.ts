@@ -359,14 +359,12 @@ export class Document {
      * @param Parser a Parser derivative from XPOSParser
      */
     protected static async parse_core(line_iter: AsyncGenerator<string>, Parser?: XPOSParser): Promise<Document> {
-        let sentenceStr = ""
         let sentences = []
         let meta = []
         let tokens = []
 
         for await (let line of line_iter) {
             line = line.trim()
-            sentenceStr += line
 
             if (line.length > 0) {
                 if (line[0] == '#') {
