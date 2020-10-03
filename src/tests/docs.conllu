@@ -1,0 +1,12 @@
+# sent_id = n01001011
+# text = “แม้ว่าการเปลี่ยนไปใช้ระบบดิจิตัลเป็นสิ่งที่ไม่เคยมีมาก่อนในสหรัฐฯ การเปลี่ยนผ่านอำนาจอย่างสันตินั้นก็ไม่ใช่เรื่องใหม่” โคริ ชูลแมน ผู้ช่วยพิเศษของโอบามา เขียนลงบล็อกเมื่อวันจันทร์
+# text_en = “While much of the digital transition is unprecedented in the United States, the peaceful transition of power is not,” Obama special assistant Kori Schulman wrote in a blog post Monday.
+# Just a comment
+1	“	_	PUNCT	``	_	27	punct	_	SpaceAfter=No
+2	แม้	_	ADP	IN	_	10	mark	_	SpaceAfter=No
+
+# sent_id = n01001013
+# text = สำหรับผู้ที่ติดตามการเปลี่ยนผ่านโซเชียลมีเดียในแคปิตอลฮิล เรื่องนี้จะแตกต่างไปเล็กน้อย
+# text_en = For those who follow social media transitions on Capitol Hill, this will be a little different.
+1	สำหรับ	_	ADP	IN	_	2	case	_	SpaceAfter=No
+2	ผู้	_	NOUN	NN	_	13	obl	_	SpaceAfter=No

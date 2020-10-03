@@ -1,0 +1,246 @@
+# sent_id = n01001011
+# text = “แม้ว่าการเปลี่ยนไปใช้ระบบดิจิตัลเป็นสิ่งที่ไม่เคยมีมาก่อนในสหรัฐฯ การเปลี่ยนผ่านอำนาจอย่างสันตินั้นก็ไม่ใช่เรื่องใหม่” โคริ ชูลแมน ผู้ช่วยพิเศษของโอบามา เขียนลงบล็อกเมื่อวันจันทร์
+# text_en = “While much of the digital transition is unprecedented in the United States, the peaceful transition of power is not,” Obama special assistant Kori Schulman wrote in a blog post Monday.
+1	“	_	PUNCT	``	_	27	punct	_	SpaceAfter=No
+2	แม้	_	ADP	IN	_	10	mark	_	SpaceAfter=No
+3	ว่า	_	ADP	IN	_	2	fixed	_	SpaceAfter=No
+4	การเปลี่ยน	_	VERB	VV	_	10	csubj	_	SpaceAfter=No
+5	ไป	_	PART	RP	_	4	compound:prt	_	SpaceAfter=No
+6	ใช้	_	VERB	VV	_	4	xcomp	_	SpaceAfter=No
+7	ระบบ	_	NOUN	NN	_	6	obj	_	SpaceAfter=No
+8	ดิจิตัล	_	ADJ	JJ	_	7	amod	_	SpaceAfter=No
+9	เป็น	_	AUX	VC	_	10	cop	_	SpaceAfter=No
+10	สิ่ง	_	NOUN	NN	_	27	advcl	_	SpaceAfter=No
+11	ที่	_	DET	WDT	_	14	nsubj	_	SpaceAfter=No
+12	ไม่	_	PART	NEG	Polarity=Neg	13	advmod	_	SpaceAfter=No
+13	เคย	_	PART	AS	Aspect=Perf	14	aux	_	SpaceAfter=No
+14	มี	_	VERB	VV	_	10	acl:relcl	_	SpaceAfter=No
+15	มา	_	PART	AS	Aspect=Perf	14	aux	_	SpaceAfter=No
+16	ก่อน	_	ADV	RB	_	14	advmod	_	SpaceAfter=No
+17	ใน	_	ADP	IN	_	18	case	_	SpaceAfter=No
+18	สหรัฐ	_	NOUN	NN	_	14	obl	_	Proper=True|SpaceAfter=No
+19	ฯ	_	PUNCT	...	_	18	punct	_	Proper=True
+20	การเปลี่ยนผ่าน	_	VERB	VV	_	27	csubj	_	SpaceAfter=No
+21	อำนาจ	_	NOUN	NN	_	20	obj	_	SpaceAfter=No
+22	อย่างสันติ	_	NOUN	NN	_	20	advmod	_	SpaceAfter=No
+23	นั้น	_	DET	DT	_	20	det	_	SpaceAfter=No
+24	ก็	_	ADV	RB	_	27	advmod	_	SpaceAfter=No
+25	ไม่	_	PART	NEG	Polarity=Neg	27	advmod	_	SpaceAfter=No
+26	ใช่	_	AUX	VC	_	27	cop	_	SpaceAfter=No
+27	เรื่อง	_	NOUN	NN	_	37	ccomp	_	SpaceAfter=No
+28	ใหม่	_	ADJ	JJ	_	27	amod	_	SpaceAfter=No
+29	”	_	PUNCT	''	_	27	punct	_	_
+30	โคริ	_	PROPN	NNP	_	37	nsubj	_	_
+31	ชูลแมน	_	PROPN	NNP	_	30	flat:name	_	_
+32	ผู้	_	NOUN	NN	_	30	appos	_	SpaceAfter=No
+33	ช่วย	_	VERB	VV	_	32	acl	_	SpaceAfter=No
+34	พิเศษ	_	ADJ	JJ	_	32	amod	_	SpaceAfter=No
+35	ของ	_	ADP	IN	_	36	case	_	SpaceAfter=No
+36	โอบามา	_	PROPN	NNP	_	32	nmod:poss	_	_
+37	เขียน	_	VERB	VV	_	0	root	_	SpaceAfter=No
+38	ลง	_	VERB	VV	_	37	xcomp	_	SpaceAfter=No
+39	บล็อก	_	NOUN	NN	_	38	obj	_	SpaceAfter=No
+40	เมื่อ	_	ADP	IN	_	41	case	_	SpaceAfter=No
+41	วัน	_	NOUN	NN	_	37	obl	_	SpaceAfter=No
+42	จันทร์	_	NOUN	NN	_	41	appos	_	_
+
+# sent_id = n01001013
+# text = สำหรับผู้ที่ติดตามการเปลี่ยนผ่านโซเชียลมีเดียในแคปิตอลฮิล เรื่องนี้จะแตกต่างไปเล็กน้อย
+# text_en = For those who follow social media transitions on Capitol Hill, this will be a little different.
+1	สำหรับ	_	ADP	IN	_	2	case	_	SpaceAfter=No
+2	ผู้	_	NOUN	NN	_	13	obl	_	SpaceAfter=No
+3	ที่	_	DET	WDT	_	4	nsubj	_	SpaceAfter=No
+4	ติดตาม	_	VERB	VV	_	2	acl:relcl	_	SpaceAfter=No
+5	การเปลี่ยนผ่าน	_	VERB	VV	_	4	obj	_	SpaceAfter=No
+6	โซเชียล	_	ADJ	JJ	_	7	amod	_	Proper=True|SpaceAfter=No
+7	มีเดีย	_	NOUN	NN	_	5	obj	_	SpaceAfter=No
+8	ใน	_	ADP	IN	_	9	case	_	SpaceAfter=No
+9	แคปิตอลฮิล	_	PROPN	NNP	_	5	obl	_	_
+10	เรื่อง	_	NOUN	NN	_	13	nsubj	_	SpaceAfter=No
+11	นี้	_	DET	DT	_	10	det	_	SpaceAfter=No
+12	จะ	_	VERB	MD	_	13	aux	_	SpaceAfter=No
+13	แตกต่าง	_	VERB	VV	_	0	root	_	SpaceAfter=No
+14	ไป	_	PART	RP	_	13	compound:prt	_	SpaceAfter=No
+15	เล็กน้อย	_	ADV	RB	_	13	advmod	_	_
+
+# sent_id = n01002017
+# text = แต่จากวาทกรรมก่อนเมื่อไม่นานเกี่ยวกับการลดการอพยพเข้า ตัวแทนจีโอพีให้คำปราศรัยว่า ในฐานะประธานาธิบดี เขาจะอนุญาตให้ผู้เข้าเมืองโดยถูกกฎหมาย “จำนวนมาก” เข้าสู่ประเทศได้ตาม “ระบบคุณธรรม”
+# text_en = But in a break from his past rhetoric about curtailing immigration, the GOP nominee proclaimed that as president he would allow “tremendous numbers” of legal immigrants based on a “merit system.”
+1	แต่	_	CCONJ	CC	_	3	cc	_	SpaceAfter=No|ToDo=ex-adp-child
+2	จาก	_	ADP	IN	_	3	case	_	SpaceAfter=No
+3	วาทกรรม	_	NOUN	NN	_	16	obl	_	SpaceAfter=No
+4	ก่อน	_	ADJ	JJ	_	3	amod	_	SpaceAfter=No
+5	เมื่อ	_	ADP	IN	_	7	case	_	SpaceAfter=No
+6	ไม่	_	PART	NEG	Polarity=Neg	7	advmod	_	SpaceAfter=No
+7	นาน	_	ADJ	JJ	_	3	xcomp	_	SpaceAfter=No
+8	เกี่ยว	_	VERB	VV	_	10	case	_	SpaceAfter=No
+9	กับ	_	ADP	IN	_	8	fixed	_	SpaceAfter=No
+10	การลด	_	VERB	VV	_	3	xcomp	_	SpaceAfter=No
+11	การอพยพ	_	VERB	VV	_	10	obj	_	SpaceAfter=No
+12	เข้า	_	PART	RP	_	11	compound:prt	_	_
+13	ตัว	_	NOUN	NN	_	16	nsubj	_	SpaceAfter=No
+14	แทน	_	VERB	VV	_	13	acl	_	SpaceAfter=No
+15	จีโอพี	_	PROPN	NNP	_	13	compound	_	SpaceAfter=No
+16	ให้	_	VERB	VV	_	0	root	_	SpaceAfter=No
+17	คำ	_	NOUN	NN	_	16	obj	_	SpaceAfter=No
+18	ปราศรัย	_	VERB	VV	_	17	acl	_	SpaceAfter=No
+19	ว่า	_	ADP	IN	_	25	mark	_	_
+20	ใน	_	ADP	IN	_	21	case	_	SpaceAfter=No
+21	ฐานะ	_	NOUN	NN	_	25	obl	_	SpaceAfter=No
+22	ประธานาธิบดี	_	NOUN	NN	_	21	compound	_	_
+23	เขา	_	PRON	PRP	Person=3	25	nsubj	_	SpaceAfter=No
+24	จะ	_	VERB	MD	_	25	aux	_	SpaceAfter=No
+25	อนุญาต	_	VERB	VV	_	16	ccomp	_	SpaceAfter=No
+26	ให้	_	VERB	VV	_	25	xcomp	_	SpaceAfter=No
+27	ผู้	_	NOUN	NN	_	36	nsubj	_	SpaceAfter=No
+28	เข้า	_	VERB	VV	_	27	acl	_	SpaceAfter=No
+29	เมือง	_	NOUN	NN	_	28	obj	_	SpaceAfter=No
+30	โดยถูก	_	VERB	VV	_	28	advmod	_	SpaceAfter=No
+31	กฎหมาย	_	NOUN	NN	_	30	advmod	_	_
+32	“	_	PUNCT	``	_	33	punct	_	SpaceAfter=No
+33	จำนวน	_	NOUN	NN	_	27	compound	_	SpaceAfter=No
+34	มาก	_	ADJ	JJ	_	33	amod	_	SpaceAfter=No
+35	”	_	PUNCT	''	_	33	punct	_	_
+36	เข้า	_	VERB	VV	_	26	xcomp	_	SpaceAfter=No
+37	สู่	_	ADP	IN	_	38	case	_	SpaceAfter=No
+38	ประเทศ	_	NOUN	NN	_	36	obl	_	SpaceAfter=No
+39	ได้	_	VERB	MD	_	36	aux	_	SpaceAfter=No
+40	ตาม	_	ADP	IN	_	42	case	_	_
+41	“	_	PUNCT	``	_	42	punct	_	SpaceAfter=No
+42	ระบบ	_	NOUN	NN	_	36	obl	_	SpaceAfter=No
+43	คุณธรรม	_	NOUN	NN	_	42	compound	_	SpaceAfter=No
+44	”	_	PUNCT	''	_	42	punct	_	_
+
+# sent_id = n01002032
+# text = “คือผมไม่ได้ชอบกดดันพวกคุณหรอกนะ แต่ชะตากรรมของสาธารณรัฐอยู่ในกำมือคุณ” เขากล่าวกับกลุ่มผู้ฟังที่รวมตัวอยู่ที่สนามกีฬามหาวิทยาลัยนอร์ทแคโรไลนา
+# text_en = “So I hate to put a little pressure on you, but the fate of the republic rests on your shoulders,” he told the crowd gathered on a sports field at the University of North Carolina.
+1	“	_	PUNCT	``	_	2	punct	_	SpaceAfter=No
+2	คือ	_	VERB	VC	_	22	ccomp	_	SpaceAfter=No
+3	ผม	_	PRON	PRP	Person=1	6	nsubj	_	SpaceAfter=No
+4	ไม่	_	PART	NEG	Polarity=Neg	5	advmod	_	SpaceAfter=No
+5	ได้	_	PART	AS	Aspect=Perf	6	aux	_	SpaceAfter=No
+6	ชอบ	_	VERB	VV	_	2	ccomp	_	SpaceAfter=No
+7	กดดัน	_	VERB	VV	_	6	xcomp	_	SpaceAfter=No
+8	พวก	_	NOUN	NN	_	7	obj	_	SpaceAfter=No
+9	คุณ	_	PRON	PRP	Person=2	8	compound	_	SpaceAfter=No
+10	หรอก	_	PART	EP	_	6	discourse	_	SpaceAfter=No
+11	นะ	_	PART	EP	_	6	discourse	_	_
+12	แต่	_	CCONJ	CC	_	16	cc	_	SpaceAfter=No
+13	ชะตากรรม	_	NOUN	NN	_	16	nsubj	_	SpaceAfter=No
+14	ของ	_	ADP	IN	_	15	case	_	SpaceAfter=No
+15	สาธารณรัฐ	_	NOUN	NN	_	13	nmod:poss	_	Proper=True|SpaceAfter=No
+16	อยู่	_	VERB	VV	_	6	conj	_	SpaceAfter=No
+17	ใน	_	ADP	IN	_	18	case	_	SpaceAfter=No
+18	กำมือ	_	NOUN	NN	_	16	obl	_	SpaceAfter=No
+19	คุณ	_	PRON	PRP	Person=2	18	compound	_	SpaceAfter=No
+20	”	_	PUNCT	''	_	2	punct	_	_
+21	เขา	_	PRON	PRP	Person=3	22	nsubj	_	SpaceAfter=No
+22	กล่าว	_	VERB	VV	_	0	root	_	SpaceAfter=No
+23	กับ	_	ADP	IN	_	24	case	_	SpaceAfter=No
+24	กลุ่ม	_	NOUN	NN	_	22	obl	_	SpaceAfter=No
+25	ผู้	_	NOUN	NN	_	24	compound	_	SpaceAfter=No
+26	ฟัง	_	VERB	VV	_	25	acl	_	SpaceAfter=No
+27	ที่	_	DET	WDT	_	28	nsubj	_	SpaceAfter=No
+28	รวม	_	VERB	VV	_	24	acl:relcl	_	SpaceAfter=No
+29	ตัว	_	NOUN	NN	_	28	obj	_	SpaceAfter=No
+30	อยู่	_	VERB	VV	_	28	acl	_	SpaceAfter=No
+31	ที่	_	ADP	IN	_	32	case	_	SpaceAfter=No
+32	สนาม	_	NOUN	NN	_	30	obl	_	SpaceAfter=No
+33	กีฬา	_	NOUN	NN	_	32	compound	_	SpaceAfter=No
+34	มหาวิทยาลัย	_	NOUN	NN	_	32	compound	_	Proper=True|SpaceAfter=No
+35	นอร์ทแคโรไลนา	_	PROPN	NNP	_	32	compound	_	_
+
+# sent_id = n01002042
+# text = การใช้จ่ายครั้งใหม่นี้ได้รับการสนับสนุนโดยบัญชีธนาคารอันร่ำรวยของคลินตัน
+# text_en = The new spending is fueled by Clinton’s large bank account.
+1	การใช้จ่าย	_	VERB	VV	_	6	nsubj	_	SpaceAfter=No
+2	ครั้ง	_	NOUN	NNB	_	1	clf	_	SpaceAfter=No
+3	ใหม่	_	ADJ	JJ	_	2	amod	_	SpaceAfter=No
+4	นี้	_	DET	DT	_	2	det	_	SpaceAfter=No
+5	ได้	_	PART	AS	Aspect=Perf	6	aux	_	SpaceAfter=No
+6	รับ	_	VERB	VV	_	0	root	_	SpaceAfter=No
+7	การสนับสนุน	_	VERB	VV	_	6	obj	_	SpaceAfter=No
+8	โดย	_	ADP	IN	_	9	case	_	SpaceAfter=No
+9	บัญชี	_	NOUN	NN	_	7	obl	_	SpaceAfter=No
+10	ธนาคาร	_	NOUN	NN	_	9	compound	_	SpaceAfter=No
+11	อัน	_	DET	WDT	_	12	nsubj	_	SpaceAfter=No
+12	ร่ำรวย	_	ADJ	JJ	_	9	acl:relcl	_	SpaceAfter=No
+13	ของ	_	ADP	IN	_	14	case	_	SpaceAfter=No
+14	คลินตัน	_	PROPN	NNP	_	9	nmod:poss	_	_
+
+# sent_id = n01002058
+# text = สิ่งที่เธอกำลังพูดและสิ่งที่เธอกำลังทำ มัน — ที่จริง มันไม่น่าเชื่อเลย
+# text_en = What she’s saying and what she’s doing, it — actually, it’s unbelievable.
+1	สิ่ง	_	NOUN	NN	_	18	obj	_	SpaceAfter=No
+2	ที่	_	DET	WDT	_	5	obj	_	SpaceAfter=No
+3	เธอ	_	PRON	PRP	Person=3	5	nsubj	_	SpaceAfter=No
+4	กำลัง	_	PART	AS	Aspect=Prog	5	aux	_	SpaceAfter=No
+5	พูด	_	VERB	VV	_	1	acl:relcl	_	SpaceAfter=No
+6	และ	_	CCONJ	CC	_	7	cc	_	SpaceAfter=No
+7	สิ่ง	_	NOUN	NN	_	1	conj	_	SpaceAfter=No
+8	ที่	_	DET	WDT	_	11	obj	_	SpaceAfter=No
+9	เธอ	_	PRON	PRP	Person=3	11	nsubj	_	SpaceAfter=No
+10	กำลัง	_	PART	AS	Aspect=Prog	11	aux	_	SpaceAfter=No
+11	ทำ	_	VERB	VV	_	7	acl:relcl	_	_
+12	มัน	_	PRON	PRP	Person=3	16	reparandum	_	_
+13	—	_	PUNCT	-	_	12	punct	_	_
+14	ที่	_	PRON	PRP	_	18	advmod	_	SpaceAfter=No
+15	จริง	_	ADJ	JJ	_	14	amod	_	_
+16	มัน	_	PRON	PRP	Person=3	18	advmod	_	SpaceAfter=No
+17	ไม่	_	PART	NEG	Polarity=Neg	18	advmod	_	SpaceAfter=No
+18	น่าเชื่อ	_	VERB	VV	_	0	root	_	SpaceAfter=No
+19	เลย	_	ADV	RB	_	18	advmod	_	_
+
+# sent_id = n01003007
+# text = 5,000 ดอลลาร์ต่อคน สูงสุดตามที่ได้รับอนุญาต
+# text_en = $5,000 per person, the maximum allowed.
+1	5,000	_	NUM	CD	_	2	nummod	_	_
+2	ดอลลาร์	_	NOUN	NNB	_	0	root	_	SpaceAfter=No
+3	ต่อ	_	ADP	IN	_	4	case	_	SpaceAfter=No
+4	คน	_	NOUN	NN	_	2	nmod	_	_
+5	สูง	_	ADJ	JJ	_	2	conj	_	SpaceAfter=No
+6	สุด	_	ADV	RB	_	5	advmod	_	SpaceAfter=No
+7	ตาม	_	ADP	IN	_	10	case	_	SpaceAfter=No
+8	ที่	_	DET	WDT	_	10	nsubj	_	SpaceAfter=No
+9	ได้รับ	_	VERB	MD	Voice=Pass	10	aux	_	SpaceAfter=No
+10	อนุญาต	_	VERB	VV	_	5	xcomp	_	_
+
+# sent_id = n01003010
+# text = เมื่อช่วงต้นตุลาคม ทีมเปลี่ยนผ่านอำนาจใช้สถานที่เดียวกันนั้นเพื่อพบปะกลุ่มรณรงค์ด้านเทคโนโลยี โดยเชิญตัวแทนของอูเบอร์ สมาคมภาพยนตร์แห่งอเมริกา สมาคมเทคโนโลยีผู้บริโภค และกลุ่มอื่นๆ
+# text_en = In early October, the transition team used the same venue to meet with technology lobbyists, inviting representatives from Uber, the Motion Picture Association of America, the Consumer Technology Association and other groups.
+1	เมื่อ	_	ADP	IN	_	2	case	_	SpaceAfter=No
+2	ช่วง	_	NOUN	NN	_	8	obl	_	SpaceAfter=No
+3	ต้น	_	NOUN	NN	_	2	compound	_	SpaceAfter=No
+4	ตุลาคม	_	NOUN	NN	_	2	compound	_	_
+5	ทีม	_	NOUN	NN	_	8	nsubj	_	SpaceAfter=No
+6	เปลี่ยนผ่าน	_	VERB	VV	_	5	acl	_	SpaceAfter=No
+7	อำนาจ	_	NOUN	NN	_	6	obj	_	SpaceAfter=No
+8	ใช้	_	VERB	VV	_	0	root	_	SpaceAfter=No
+9	สถานที่	_	NOUN	NN	_	8	obj	_	SpaceAfter=No
+10	เดียว	_	ADJ	JJ	_	9	amod	_	SpaceAfter=No
+11	กัน	_	PRON	PRP	_	10	advmod	_	SpaceAfter=No
+12	นั้น	_	DET	DT	_	9	det	_	SpaceAfter=No
+13	เพื่อ	_	ADP	IN	_	14	mark	_	SpaceAfter=No
+14	พบปะ	_	VERB	VV	_	8	advcl	_	SpaceAfter=No
+15	กลุ่ม	_	NOUN	NN	_	14	obj	_	SpaceAfter=No
+16	รณรงค์	_	VERB	VV	_	15	acl	_	SpaceAfter=No
+17	ด้าน	_	NOUN	NN	_	16	obj	_	SpaceAfter=No
+18	เทคโนโลยี	_	NOUN	NN	_	17	compound	_	_
+19	โดย	_	ADP	IN	_	20	mark	_	SpaceAfter=No
+20	เชิญ	_	VERB	VV	_	14	advcl	_	SpaceAfter=No
+21	ตัว	_	NOUN	NN	_	20	obj	_	SpaceAfter=No
+22	แทน	_	VERB	VV	_	21	acl	_	SpaceAfter=No
+23	ของ	_	ADP	IN	_	24	case	_	SpaceAfter=No
+24	อูเบอร์	_	PROPN	NNP	_	21	nmod:poss	_	_
+25	สมาคม	_	NOUN	NN	_	21	conj	_	Proper=True|SpaceAfter=No
+26	ภาพยนตร์	_	NOUN	NN	_	25	flat:name	_	Proper=True|SpaceAfter=No
+27	แห่ง	_	ADP	IN	_	28	case	_	Proper=True|SpaceAfter=No
+28	อเมริกา	_	PROPN	NNP	_	25	nmod:poss	_	_
+29	สมาคม	_	NOUN	NN	_	21	conj	_	Proper=True|SpaceAfter=No
+30	เทคโนโลยี	_	NOUN	NN	_	29	flat:name	_	Proper=True|SpaceAfter=No
+31	ผู้	_	NOUN	NN	_	29	flat:name	_	Proper=True|SpaceAfter=No
+32	บริโภค	_	VERB	VV	_	31	acl	_	Proper=True
+33	และ	_	CCONJ	CC	_	34	cc	_	SpaceAfter=No
+34	กลุ่ม	_	NOUN	NN	_	21	conj	_	SpaceAfter=No
+35	อื่น	_	ADJ	JJ	_	34	amod	_	SpaceAfter=No
+36	ๆ	_	SYM	SYM	_	35	dep	_	_
