@@ -51,6 +51,15 @@ If document is an object of `Document` class:
 
 For example, to save document into give file `await document.save('/home/me/doc.conllu')`
 
+It is possible to incrementally load CoNLL-U file sentence by sentence instead of parsing the whole file at once.
+To do so, use async generator function `sentences`. It takes a `Readable` object and optional `Parser` arguments. For example:
+```javascript
+let stream = fs.createReadStream('path/to/file')
+for await (let sentence of sentences(stream, MyXPOSParser)) {
+    // do something with sentence
+}
+```
+
 ## Data access
 `Document` contains a field `sentences`. `sentences` is an array of `Sentence` object.
 
