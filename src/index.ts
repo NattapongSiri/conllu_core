@@ -1,6 +1,6 @@
 import XRegExp from 'xregexp'
 import {createReadStream, createWriteStream} from 'fs'
-import {createInterface} from 'readline'
+import {createInterface, Interface} from 'readline'
 import {Readable, Writable} from 'stream'
 
 /**
@@ -229,6 +229,7 @@ function parseCompoundId(ids: string): [number, number] {
     return [start, end]
 }
 
+/** Parse a compound token from given tokens strings */
 function parseCompound(tokens: string[]): CompoundToken {
     if (tokens.length != 10) {
         throw "CompountToken requires tab separate string with 10 columns"
@@ -306,7 +307,76 @@ function parseEmptyUncheck(tokens: string[], Parser?: XPOSParser) : EmptyToken {
 }
 
 /**
- * Document is an entry point to `conllu`. It contains zero or more sentences.
+ * A generator function that keep return a `Sentence` object on each call.
+ * Use this generator if whole document cannot be fit into memory.
+ * 
+ * @param stream A `Readable` stream that contains CoNLL-U format text.
+ * @param Parser A derivative of `XPOSParser` object for parsing `xpos` field
+ */
+export async function* sentences(stream: Readable, Parser?: XPOSParser): AsyncGenerator<Sentence> {
+    async function* read_line(readable: Readable): AsyncGenerator<string> {
+        let lines = createInterface({input: readable})
+        for await (let line of lines) {
+            yield line
+        }
+        lines.close()
+    }
+    for await (let sentence of _sentences(read_line(stream), Parser)) {
+        yield sentence
+    }
+}
+
+/** 
+ * Core `Sentence` generator function. It take a generator that yield a line on each call and a Parser as argument.
+ * Each call to this function yield a `Sentence`.
+ */
+async function* _sentences(line_iter: AsyncGenerator<string>, Parser?: XPOSParser): AsyncGenerator<Sentence> {
+    let meta = []
+    let tokens = []
+
+    for await (let line of line_iter) {
+        line = line.trim()
+
+        if (line.length > 0) {
+            if (line[0] == '#') {
+                meta.push(parseHashLine(line.slice(1)))
+            } else {
+                let t = parseToken(line, Parser)
+
+                if (t instanceof CompoundToken) {
+                    tokens.push(t)
+                } else if (t.length == 2) {
+                    // nominal token
+                    tokens.push(t[1])
+                } else if (t.length == 3) {
+                    // empty token
+                    tokens.push(t[2])
+                } else {
+                    throw "Invalid state while parsing token line"
+                }
+            }
+        } else if (tokens.length > 0) {
+            yield new Sentence({meta, tokens})
+            meta = []
+            tokens = []
+        }
+    }
+
+    if (tokens.length > 0) {
+        yield new Sentence({meta, tokens})
+        meta = []
+        tokens = []
+    }
+}
+
+/**
+ * `Document` is an entry point to `conllu`. It contains zero or more sentences.
+ * 
+ * To programmatically construct a `Document` use it constructor.
+ * To construct a `Document` using CoNLL-U format text, use either
+ * `parse`, `load`, or `read` method depending on source of text.
+ * 
+ * If `Document` cannot be fit into memory, use `sentences` generator function.
  */
 export class Document {
     sentences: Sentence[]
@@ -322,16 +392,12 @@ export class Document {
      * @param Parser An optional Parser that is derivative of type XPOSParser for mapping XPOS to UPOS
      */
     public static async load(file_path: string, Parser?: XPOSParser): Promise<Document> {
-        async function* yield_lines(path: string) {
-            let stream = createReadStream(file_path)
-            let reader = createInterface({input: stream})
-            for await (let line of reader) {
-                yield line
-            }
-            reader.close()
-            stream.close()
+        let stream = createReadStream(file_path)
+        let loaded_sentences = []
+        for await (let line of sentences(stream, Parser)) {
+            loaded_sentences.push(line)
         }
-        return this.parse_core(yield_lines(file_path), Parser)
+        return new Document(loaded_sentences)
     }
 
     /**
@@ -341,15 +407,12 @@ export class Document {
      * @param Parser An optional Parser that is derivative of type XPOSParser for mapping XPOS to UPOS
      */
     public static async read(stream: Readable, Parser?: XPOSParser): Promise<Document> {
-        async function* yield_lines(stream: Readable) {
-            let lines = createInterface({input: stream})
-            for await (let line of lines) {
-                yield line
-            }
-            lines.close()
+        let loaded_sentences = []
+        for await (let sentence of sentences(stream, Parser)) {
+            loaded_sentences.push(sentence)
         }
-        
-        return this.parse_core(yield_lines(stream), Parser)
+
+        return new Document(loaded_sentences)
     }
 
     /**
@@ -360,41 +423,8 @@ export class Document {
      */
     protected static async parse_core(line_iter: AsyncGenerator<string>, Parser?: XPOSParser): Promise<Document> {
         let sentences = []
-        let meta = []
-        let tokens = []
-
-        for await (let line of line_iter) {
-            line = line.trim()
-
-            if (line.length > 0) {
-                if (line[0] == '#') {
-                    meta.push(parseHashLine(line.slice(1)))
-                } else {
-                    let t = parseToken(line, Parser)
-
-                    if (t instanceof CompoundToken) {
-                        tokens.push(t)
-                    } else if (t.length == 2) {
-                        // nominal token
-                        tokens.push(t[1])
-                    } else if (t.length == 3) {
-                        // empty token
-                        tokens.push(t[2])
-                    } else {
-                        throw "Invalid state while parsing token line"
-                    }
-                }
-            } else if (tokens.length > 0) {
-                sentences.push(new Sentence({meta, tokens}))
-                meta = []
-                tokens = []
-            }
-        }
-
-        if (tokens.length > 0) {
-            sentences.push(new Sentence({meta, tokens}))
-            meta = []
-            tokens = []
+        for await (let sentence of _sentences(line_iter)) {
+            sentences.push(sentence)
         }
 
         return new Document(sentences)
@@ -581,6 +611,11 @@ export enum SentenceValidationResult {
  * `Sentence` consists of:
  * 1. `meta` which is array. The object inside array can either be `Meta` object or `Comment` object.
  * 1. `tokens` which is array of derivative of `Token` class.
+ * 
+ * To parse sentence text:
+ * 1. You can either construct a `Document` from text by using `parse`, `load`, `read` method and access
+ * `Sentence` via `sentences` field of `Document` object.
+ * 2. You can also use generator function `sentences` to parse each text chunk incrementally.
  */
 export class Sentence {
     meta: (Meta | Comment)[]
@@ -820,6 +855,7 @@ export class CompoundToken implements Token {
         return parseCompound(cols)
     }
 
+    /** Retrieve a CoNLL-U format string representation of this token */
     public toString(): string {
         return tokenToString(this)
     }
@@ -873,6 +909,10 @@ export class NominalToken implements Token {
         return parseNominal(cols, Parser)
     }
 
+    /**
+     * Retrieve a CoNLL-U representation string of this token. The string will have
+     * no `id` as its' ID rely on sequence in sentence.
+     */
     public toString(): string {
         return tokenToString({id: [], ...this})
     }
@@ -912,11 +952,20 @@ export class EmptyToken implements Token {
         return parseEmpty(cols, Parser)
     }
 
+    /**
+     * Retrieve a CoNLL-U representation string of this token. The string will have
+     * no `id` as its' ID rely on sequence in sentence.
+     */
     public toString(): string {
         return tokenToString({id: [], ...this})
     }
 }
 
+/** 
+ * All possible part-of-speech defined in CoNLL-U. 
+ * A complete list of POS can be found here:
+ * https://universaldependencies.org/u/pos/index.html
+ */
 export enum UPOS {
     ADJ = "ADJ",
     ADP = "ADP",
@@ -937,15 +986,32 @@ export enum UPOS {
     Other = "X"
 }
 
+/** Utility function to parse string as UPOS object */
 export function toUPOS(str: string): UPOS {
-    return UPOS[str as keyof typeof UPOS]
+    return UPOS[str.toUpperCase() as keyof typeof UPOS]
 }
 
+/** 
+ * An abstract class XPOS which every languages that use 
+ * `xpos` field need to implement.
+ * 
+ * It is mandatory to implement this class to preserve `xpos` field when you want
+ * to use `xpos` field.
+ */
 export abstract class XPOS {
     abstract toUPOS(): UPOS;
     abstract toString(): string;
 }
 
+/**
+ * An abstract class XPOSParser which any language that use `xpos` field and 
+ * require to deserialize need to implement.
+ * 
+ * The implementation need to implement `parse` as static method.
+ * If you don't pass an implementation of this class when deserialize the
+ * `Document`, `Sentence`, `NominalToken`, and `EmptyToken` then the deserialized
+ * object will have no `xpos` field.
+ */
 export abstract class XPOSParser {
     abstract parse(str: string): XPOS;
 }
@@ -953,6 +1019,13 @@ export abstract class XPOSParser {
 const featureNameValidator = /^[A-Z0-9][A-Z0-9a-z]*(\[[a-z0-9]+\])?$/
 const featureValValidator = /^[A-Z0-9][a-zA-Z0-9]*$/
 
+/**
+ * A feature as describe in https://universaldependencies.org/format.html#morphological-annotation
+ * It is a kind of key/values pair where key is a name of feature type and values is a list of
+ * feature name.
+ * 
+ * If you construct this feature via its' constructor, it will validate the name and sort the values for you.
+ */
 export class Feature {
     name: string
     value: string[]
@@ -978,6 +1051,11 @@ export class Feature {
 
 const depsRelValidator = XRegExp('^[a-z]+(:[a-z]+)?(:[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+(_[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+)*)?(:[a-z]+)?$')
 
+/**
+ * A DepsRelation is a relation used in `deps` field on `NominalToken` and `EmptyToken`.
+ * A constructor will validate the relation name according to
+ * https://universaldependencies.org/u/overview/enhanced-syntax.html
+ */
 export class DepsRelation {
     rel: string
 
@@ -996,6 +1074,12 @@ export class DepsRelation {
 
 const relationValidator = /^[a-z]+(:[a-z]+)?$/
 
+/**
+ * A Relation is a name of relation that is used to describe the token relation
+ * to it `head`. The field that uses this class is `deprel`.
+ * `deprel` is mandatory if `head` is not empty.
+ * See https://universaldependencies.org/format.html#syntactic-annotation
+ */
 export class Relation {
     rel: string
 
@@ -1009,47 +1093,4 @@ export class Relation {
     public toString(): string {
         return this.rel
     }
-}
-
-// export type Relation = "acl" |      // clausal modifier of noun (adjectival clause)
-//                        "advcl" |    // adverbial clause modifier
-//                        "advmod" |   // adverbial modifier
-//                        "amod" |     // adjectival modifier
-//                        "appos" |    // appositional modifier
-//                        "aux" |      // auxiliary
-//                        "case" |     // case marking
-//                        "cc" |       // coordinating conjunction
-//                        "ccomp" |    // clausal complement
-//                        "clf" |      // classifier
-//                        "compound" | // compound
-//                        "conj" |     // conjunct
-//                        "cop" |      // copula
-//                        "csubj" |    // clausal subject
-//                        "dep" |      // unspecified dependency
-//                        "det" |      // determiner
-//                        "discourse" |// discourse element
-//                        "dislocated"|// dislocated elements
-//                        "expl" |     // expletive
-//                        "fixed" |    // fixed multiword expression
-//                        "flat" |     // flat multiword expression
-//                        "goeswith" | // goes with
-//                        "iobj" |     // indirect object
-//                        "list" |     // list
-//                        "mark" |     // marker
-//                        "nmod" |     // nominal modifier
-//                        "nsubj" |    // nominal subject
-//                        "nummod" |   // numeric modifier
-//                        "obj" |      // object
-//                        "obl" |      // oblique nominal
-//                        "orphan" |   // orphan
-//                        "parataxis"| // parataxis
-//                        "punct" |    // punctuation
-//                        "reparandum"|// overridden disfluency
-//                        "root" |     // root
-//                        "vocative" | // vocative
-//                        "xcomp"      // open clausal complement
-
-export class NounClassFeat {
-    langGroup: string
-    num: number
 }
