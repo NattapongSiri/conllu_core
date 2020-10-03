@@ -1,4 +1,4 @@
-import * as XRegExp from 'xregexp'
+import XRegExp from 'xregexp'
 import {createReadStream, createWriteStream} from 'fs'
 import {createInterface} from 'readline'
 import {Readable, Writable} from 'stream'
