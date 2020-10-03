@@ -5,7 +5,7 @@
       "esModuleInterop": true,
       "lib": ["dom", "es2015"],
       "noImplicitAny": true,
-      "removeComments": true,
+      "removeComments": false,
       "preserveConstEnums": true,
       "outDir": "bin",
       "sourceMap": true
