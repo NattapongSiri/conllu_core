@@ -9,13 +9,14 @@ More info on `CoNLL-U` can be found in [here](https://universaldependencies.org/
 - Node.js version 8 or above
 - Any browser that support ES2015 (ES6)
 
-## How to build
+## How to build from source
+1. `git clone https://github.com/NattapongSiri/conllu_core.git`
+1. `cd conllu_core`
 1. `npm install`
 1. `npm run build`
 
 ## How to use
-1. `npm install  git+https://github.com/NattapongSiri/conllu_core.git`
-1. `npm run build`
+1. `npm install conllu_core`
 
 There're many classes that will be used during processing conllu.
 Most notable are:
