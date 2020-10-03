@@ -155,7 +155,3 @@ describe("Test NominalToken", () => {
         })
     })
 })
-
-// TODO: Test Sentence
-// TODO: Test Paragraph
-// TODO: Test Document
