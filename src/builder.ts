@@ -13,6 +13,17 @@ export enum HeadPolicy {
     Remove,
 }
 
+/**
+ * A sentence builder that assist user on manipulating the `Sentence`.
+ * Key methods are:
+ * - `merge` - To merge tokens into one. It take inclusive index of token at both start and end. Type of token at both end must have the same type. It doesn't yet support merging compound token yet. It support custom merging strategy by extend class `MergePolicy`. See class `MergePolicy` for default operation on merge.
+ * - `split` - To split a token into multiple tokens. It take an array of index of character position in `form` field of token. Similar to `merge`, user can define custom strategy on splitting token by extends a class `SplitPolicy`.
+ * - `insert_token` - Insert a new token at specific index.
+ * - `remove_token` - Remove a token from specific index and resolve dependencies according to given `HeadPolicy`. This operation may cause some token to have a self dependency.
+ * - `upsert_head_by_index` - Set a new head to a token at given index.
+ * - `upsert_dep_by_index` - Update or insert a dependency to a token at given index.
+ * - `remove_self_dependencies` - To automatically remove all dependencies that point to itself. This operation may result in validation failure as some `deps` of some `EmptyToken` may become empty.
+ */
 export class SentenceBuilder {
     meta: (Meta | Comment)[]
     tokens: Token[]
