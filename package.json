@@ -1,12 +1,14 @@
 {
   "name": "conllu-core",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A core type to handle CoNLL-U format",
   "main": "bin/index.js",
   "homepage": "https://github.com/NattapongSiri/conllu_core",
   "keywords": [
     "conllu",
     "universal dependencies",
+    "builder",
+    "manipulate",
     "corpus",
     "load",
     "parse",
