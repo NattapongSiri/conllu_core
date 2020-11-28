@@ -23,6 +23,8 @@ export enum HeadPolicy {
  * - `upsert_head_by_index` - Set a new head to a token at given index.
  * - `upsert_dep_by_index` - Update or insert a dependency to a token at given index.
  * - `remove_self_dependencies` - To automatically remove all dependencies that point to itself. This operation may result in validation failure as some `deps` of some `EmptyToken` may become empty.
+ * 
+ * It is possible to instantiate the builder by `new SentenceBuilder` or by `SentenceBuilder.from(sentence)`
  */
 export class SentenceBuilder {
     meta: (Meta | Comment)[]
