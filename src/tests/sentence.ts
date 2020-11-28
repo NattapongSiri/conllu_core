@@ -10,6 +10,8 @@ import {
     Feature,
     Relation
 } from '../index'
+import {HeadPolicy, MergePolicy, SentenceBuilder} from '../builder'
+// import {HeadPolicy, MergePolicy, mergeTokens, mergeTokensByIndex} from '../sentence'
 import {
     expect
 } from 'chai'
@@ -1177,5 +1179,2398 @@ describe('Test Sentence', () => {
             )
         })
         // TODO More test cases for parse setence go here
+    })
+    describe("Test merge tokens by using Builder", () => {
+        describe("Test merge Nominal token", () => {
+            it("merge some nominal without any dependencies", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 2, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]}))
+            })
+            it("merge all nominal where SpaceAfter=No without any dependencies", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 2, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "isa",
+                        lemma: "bea",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]}))
+            })
+            it("merge nominal with empty in between", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new EmptyToken({
+                        form: 'hidden',
+                        deps: [[[4], new DepsRelation("obj")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 3, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]}))
+            })
+            it("merge all nominal where SpaceAfter=No without any dependencies", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 2, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "isa",
+                        lemma: "bea",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]}))
+            })
+            it("merge nominal with compound in between", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new CompoundToken({
+                        id: [3, 4],
+                        form: 'hidden'
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 4, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is a book",
+                        lemma: "be a book",
+                        upos: UPOS.VERB
+                    })
+                ]}))
+            })
+            it("merge nominal with empty and compound in between", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new CompoundToken({
+                        id: [3, 4],
+                        form: 'hidden'
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new DepsRelation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 5, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new NominalToken({
+                        form: "is a book",
+                        lemma: "be a book",
+                        upos: UPOS.VERB
+                    })
+                ]}))
+            })
+            it("merge nominal inside compound token", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new CompoundToken({
+                        id: [2, 4],
+                        form: 'hidden'
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(2, 3, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new CompoundToken({
+                        id: [2, 3],
+                        form: 'hidden'
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]}))
+            })
+            it("merge nominal partially overlap with compound token", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new CompoundToken({
+                        id: [2, 4],
+                        form: 'hidden'
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(3, 4, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                    }),
+                    new CompoundToken({
+                        id: [2, 3],
+                        form: 'hidden'
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB
+                    }),
+                    new NominalToken({
+                        form: "a book",
+                        lemma: "a book",
+                        upos: UPOS.PART
+                    })
+                ]}))
+            })
+            it("merge entire nominal sentence", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        misc: ["SpaceAfter=Yes"]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        misc: ["SomeConfig=some value"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]})
+                let policy = new MergePolicy()
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(0, 3, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This is abook",
+                        lemma: "This be abook",
+                        upos: UPOS.DET,
+                        misc: ["SomeConfig=some value", "SpaceAfter=No"]
+                    })
+                ]}))
+            })
+            it("merge entire nominal sentence with one dependency using default merge policy", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({form: "Hidden subject", deps: [[[2], new DepsRelation("nsubj")]]}),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        misc: ["SpaceAfter=Yes"]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        misc: ["SomeConfig=some value"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]})
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 4)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new EmptyToken({form: "Hidden subject", deps: [[[1], new DepsRelation("nsubj")]]}),
+                    new NominalToken({
+                        form: "This is abook",
+                        lemma: "This be abook",
+                        upos: UPOS.DET,
+                        misc: ["SomeConfig=some value", "SpaceAfter=No"]
+                    })
+                ]}))
+            })
+            it("merge entire nominal sentence with one dependency using removing dependencies policy", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({form: "Hidden subject", deps: [[[2], new DepsRelation("nsubj")]]}),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        misc: ["SpaceAfter=Yes"]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        misc: ["SomeConfig=some value"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]})
+                let policy = new MergePolicy()
+                policy.headPol = HeadPolicy.Remove
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 4, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new EmptyToken({form: "Hidden subject", deps: []}),
+                    new NominalToken({
+                        form: "This is abook",
+                        lemma: "This be abook",
+                        upos: UPOS.DET,
+                        misc: ["SomeConfig=some value", "SpaceAfter=No"]
+                    })
+                ]}))
+            })
+            it("merge some nominal with lot of head dependencies", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]})
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 2)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]}))
+            })
+            it("merge some nominal with lot of head dependencies using remove policy", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]})
+                let policy = new MergePolicy()
+                policy.headPol = HeadPolicy.Remove
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(1, 2, policy)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN
+                    })
+                ]}))
+            })
+            it("merge some nominal with lot of head dependencies promoting new root", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]})
+                let builder = SentenceBuilder.from(sentence)
+                builder.merge(0, 1)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This is",
+                        lemma: "This be",
+                        upos: UPOS.DET,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [3, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [1, new Relation("obj")]
+                    })
+                ]}))
+            })
+            it("merge some nominal with empty in between and a lot of head dependencies", () => {
+                let sentence = new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2], new Relation("obl")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]})
+                SentenceBuilder.from(sentence)
+                               .merge(1, 3)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]}))
+            })
+            it("merge some nominal with empty in between and some dep dependencies that need adjust", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(3, 5)
+                expect(sentence).to.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is a",
+                        lemma: "be a",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 1], new Relation("conj")]]
+                    }),
+                ]}))
+            })
+        })
+        describe("Test merge Empty token", () => {
+            it("Test merge first two empty tokens without form field", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(0, 1)
+                expect(sentence).to.be.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]}))
+            })
+            it("Test merge first two empty tokens where both have form field", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        form: "Hidden",
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=Yes"]
+                    }),
+                    new EmptyToken({
+                        form: "subject",
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(0, 1)
+                expect(sentence).to.be.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        form: "Hidden subject",
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]}))
+            })
+            it("Test merge middle two empty tokens without form field", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(4, 5)
+                expect(sentence).to.be.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]}))
+            })
+            it("Test merge middle two empty tokens with form field", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(4, 5)
+                expect(sentence).to.be.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[3, 1], new Relation("conj")]]
+                    })
+                ]}))
+            })
+            it("Test merge last two empty tokens without form field", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4, 2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(8, 9)
+                expect(sentence).to.be.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]}))
+            })
+            it("Test merge last two empty tokens with form field", () => {
+                let sentence = new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "very",
+                        deps: [[[4, 2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "large",
+                        deps: [[[4], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]})
+                SentenceBuilder.from(sentence).merge(8, 9)
+                expect(sentence).to.be.eql(new Sentence({tokens: [
+                    new EmptyToken({
+                        deps: [[[1], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        deps: [[[0, 1], new Relation("punct")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "very large",
+                        deps: [[[4], new Relation("nmod")]],
+                        misc: ["SpaceAfter=No"]
+                    })
+                ]}))
+            })
+        })
+    })
+    describe("Test split token by using Builder", () => {
+        describe("Test split nominal token", () => {
+            let sentence: Sentence
+            beforeEach(() => {
+                sentence = new Sentence({meta: [], tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "some",
+                        lemma: "some",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        deps: [[[4], new Relation("nmod")]]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    })
+                ]})
+            })
+            it("Test split first token in two", () => {
+                SentenceBuilder.from(sentence).split(0, [2])
+                expect(sentence).to.eql(
+                    new Sentence({meta: [], tokens: [
+                        new NominalToken({
+                            form: "Th",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [3, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "is",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [3, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "is",
+                            lemma: "be",
+                            upos: UPOS.VERB,
+                            headRel: [0, new Relation("root")]
+                        }),
+                        new EmptyToken({
+                            form: "not",
+                            deps: [[[3], new Relation("advmod")]],
+                            misc: ["SpaceAfter=No"]
+                        }),
+                        new NominalToken({
+                            form: "some",
+                            lemma: "some",
+                            upos: UPOS.PART,
+                            headRel: [5, new Relation("det")]
+                        }),
+                        new EmptyToken({
+                            deps: [[[5], new Relation("nmod")]]
+                        }),
+                        new NominalToken({
+                            form: "book",
+                            lemma: "book",
+                            upos: UPOS.NOUN,
+                            headRel: [3, new Relation("obj")]
+                        })
+                    ]})
+                )
+            })
+            it("Test split first token in three", () => {
+                SentenceBuilder.from(sentence).split(0, [1, 2])
+                expect(sentence).to.eql(
+                    new Sentence({meta: [], tokens: [
+                        new NominalToken({
+                            form: "T",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [4, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "h",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [4, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "is",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [4, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "is",
+                            lemma: "be",
+                            upos: UPOS.VERB,
+                            headRel: [0, new Relation("root")]
+                        }),
+                        new EmptyToken({
+                            form: "not",
+                            deps: [[[4], new Relation("advmod")]],
+                            misc: ["SpaceAfter=No"]
+                        }),
+                        new NominalToken({
+                            form: "some",
+                            lemma: "some",
+                            upos: UPOS.PART,
+                            headRel: [6, new Relation("det")]
+                        }),
+                        new EmptyToken({
+                            deps: [[[6], new Relation("nmod")]]
+                        }),
+                        new NominalToken({
+                            form: "book",
+                            lemma: "book",
+                            upos: UPOS.NOUN,
+                            headRel: [4, new Relation("obj")]
+                        })
+                    ]})
+                )
+            })
+            it("Test split middle token in two", () => {
+                SentenceBuilder.from(sentence).split(3, [2])
+                expect(sentence).to.eql(
+                    new Sentence({meta: [], tokens: [
+                        new NominalToken({
+                            form: "This",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [2, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "is",
+                            lemma: "be",
+                            upos: UPOS.VERB,
+                            headRel: [0, new Relation("root")]
+                        }),
+                        new EmptyToken({
+                            form: "not",
+                            deps: [[[2], new Relation("advmod")]],
+                            misc: ["SpaceAfter=No"]
+                        }),
+                        new NominalToken({
+                            form: "so",
+                            lemma: "some",
+                            upos: UPOS.PART,
+                            headRel: [5, new Relation("det")]
+                        }),
+                        new NominalToken({
+                            form: "me",
+                            lemma: "some",
+                            upos: UPOS.PART,
+                            headRel: [5, new Relation("det")]
+                        }),
+                        new EmptyToken({
+                            deps: [[[5], new Relation("nmod")]]
+                        }),
+                        new NominalToken({
+                            form: "book",
+                            lemma: "book",
+                            upos: UPOS.NOUN,
+                            headRel: [2, new Relation("obj")]
+                        })
+                    ]})
+                )
+            })
+            it("Test split last token in two", () => {
+                SentenceBuilder.from(sentence).split(5, [2])
+                expect(sentence).to.eql(
+                    new Sentence({meta: [], tokens: [
+                        new NominalToken({
+                            form: "This",
+                            lemma: "This",
+                            upos: UPOS.DET,
+                            headRel: [2, new Relation("nsubj")]
+                        }),
+                        new NominalToken({
+                            form: "is",
+                            lemma: "be",
+                            upos: UPOS.VERB,
+                            headRel: [0, new Relation("root")]
+                        }),
+                        new EmptyToken({
+                            form: "not",
+                            deps: [[[2], new Relation("advmod")]],
+                            misc: ["SpaceAfter=No"]
+                        }),
+                        new NominalToken({
+                            form: "some",
+                            lemma: "some",
+                            upos: UPOS.PART,
+                            headRel: [4, new Relation("det")]
+                        }),
+                        new EmptyToken({
+                            deps: [[[4], new Relation("nmod")]]
+                        }),
+                        new NominalToken({
+                            form: "bo",
+                            lemma: "book",
+                            upos: UPOS.NOUN,
+                            headRel: [2, new Relation("obj")]
+                        }),
+                        new NominalToken({
+                            form: "ok",
+                            lemma: "book",
+                            upos: UPOS.NOUN,
+                            headRel: [2, new Relation("obj")]
+                        })
+                    ]})
+                )
+            })
+        })
+        describe("Test split empty token", () => {
+            let sentence: Sentence
+
+            beforeEach(() => {
+                sentence = new Sentence({meta: [], tokens: [
+                    new EmptyToken({
+                        form: "May be",
+                        deps: [[[1], new Relation("cop")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "officially",
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 2], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "yet",
+                        deps: [[[4], new Relation("advmod")]]
+                    })
+                ]})
+            })
+            it("Test split first token in half", () => {
+                SentenceBuilder.from(sentence).split(0, [3])
+                expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                    new EmptyToken({
+                        form: "May",
+                        deps: [[[1], new Relation("cop")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new EmptyToken({
+                        form: " be",
+                        deps: [[[1], new Relation("cop")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "officially",
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 2], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "yet",
+                        deps: [[[4], new Relation("advmod")]]
+                    })
+                ]}))
+            })
+            it("Test split middle token in half", () => {
+                SentenceBuilder.from(sentence).split(3, [2])
+                expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                    new EmptyToken({
+                        form: "May be",
+                        deps: [[[1], new Relation("cop")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "no",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "t",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "officially",
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 3], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "yet",
+                        deps: [[[4], new Relation("advmod")]]
+                    })
+                ]}))
+            })
+            it("Test split middle token in half", () => {
+                SentenceBuilder.from(sentence).split(8, [2])
+                expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                    new EmptyToken({
+                        form: "May be",
+                        deps: [[[1], new Relation("cop")]],
+                        misc: ["SpaceAfter=No"]
+                    }),
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "officially",
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        deps: [[[2, 2], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "ye",
+                        deps: [[[4], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "t",
+                        deps: [[[4], new Relation("advmod")]]
+                    })
+                ]}))
+            })
+        })
+    })
+
+    describe("Test insert tokens by using Builder", () => {
+        let sentence: Sentence
+        beforeEach(() => {
+            sentence = new Sentence({meta: [], tokens: [
+                new EmptyToken({
+                    form: "May be",
+                    deps: [[[1], new Relation("cop")]],
+                    misc: ["SpaceAfter=No"]
+                }),
+                new NominalToken({
+                    form: "This",
+                    lemma: "This",
+                    upos: UPOS.DET,
+                    headRel: [2, new Relation("nsubj")]
+                }),
+                new NominalToken({
+                    form: "is",
+                    lemma: "be",
+                    upos: UPOS.VERB,
+                    headRel: [0, new Relation("root")]
+                }),
+                new EmptyToken({
+                    form: "not",
+                    deps: [[[2], new Relation("advmod")]]
+                }),
+                new EmptyToken({
+                    form: "officially",
+                    deps: [[[2, 1], new Relation("advmod")]]
+                }),
+                new EmptyToken({
+                    deps: [[[2, 2], new Relation("advmod")]]
+                }),
+                new NominalToken({
+                    form: "a",
+                    lemma: "a",
+                    upos: UPOS.PART,
+                    headRel: [4, new Relation("det")]
+                }),
+                new NominalToken({
+                    form: "book",
+                    lemma: "book",
+                    upos: UPOS.NOUN,
+                    headRel: [2, new Relation("obj")]
+                }),
+                new EmptyToken({
+                    form: "yet",
+                    deps: [[[4], new Relation("advmod")]]
+                })
+            ]})
+        })
+        it("Test insert at front", () => {
+            expect(SentenceBuilder.from(sentence).insert_token(new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}), 0))
+                                    .to.eql(SentenceBuilder.from(new Sentence({meta: [], tokens: [
+                                        new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}),
+                                        new EmptyToken({
+                                            form: "May be",
+                                            deps: [[[1], new Relation("cop")]],
+                                            misc: ["SpaceAfter=No"]
+                                        }),
+                                        new NominalToken({
+                                            form: "This",
+                                            lemma: "This",
+                                            upos: UPOS.DET,
+                                            headRel: [2, new Relation("nsubj")]
+                                        }),
+                                        new NominalToken({
+                                            form: "is",
+                                            lemma: "be",
+                                            upos: UPOS.VERB,
+                                            headRel: [0, new Relation("root")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "not",
+                                            deps: [[[2], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            form: "officially",
+                                            deps: [[[2, 1], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            deps: [[[2, 2], new Relation("advmod")]]
+                                        }),
+                                        new NominalToken({
+                                            form: "a",
+                                            lemma: "a",
+                                            upos: UPOS.PART,
+                                            headRel: [4, new Relation("det")]
+                                        }),
+                                        new NominalToken({
+                                            form: "book",
+                                            lemma: "book",
+                                            upos: UPOS.NOUN,
+                                            headRel: [2, new Relation("obj")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "yet",
+                                            deps: [[[4], new Relation("advmod")]]
+                                        })
+                                    ]})))
+        })
+        it("Test insert at back", () => {
+            expect(SentenceBuilder.from(sentence).insert_token(new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}), sentence.tokens.length))
+                                    .to.eql(SentenceBuilder.from(new Sentence({meta: [], tokens: [
+                                        new EmptyToken({
+                                            form: "May be",
+                                            deps: [[[1], new Relation("cop")]],
+                                            misc: ["SpaceAfter=No"]
+                                        }),
+                                        new NominalToken({
+                                            form: "This",
+                                            lemma: "This",
+                                            upos: UPOS.DET,
+                                            headRel: [2, new Relation("nsubj")]
+                                        }),
+                                        new NominalToken({
+                                            form: "is",
+                                            lemma: "be",
+                                            upos: UPOS.VERB,
+                                            headRel: [0, new Relation("root")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "not",
+                                            deps: [[[2], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            form: "officially",
+                                            deps: [[[2, 1], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            deps: [[[2, 2], new Relation("advmod")]]
+                                        }),
+                                        new NominalToken({
+                                            form: "a",
+                                            lemma: "a",
+                                            upos: UPOS.PART,
+                                            headRel: [4, new Relation("det")]
+                                        }),
+                                        new NominalToken({
+                                            form: "book",
+                                            lemma: "book",
+                                            upos: UPOS.NOUN,
+                                            headRel: [2, new Relation("obj")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "yet",
+                                            deps: [[[4], new Relation("advmod")]]
+                                        }),
+                                        new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}),
+                                    ]})))
+        })
+        it("Test insert at middle between nominal", () => {
+            expect(SentenceBuilder.from(sentence).insert_token(new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}), 7))
+                                    .to.eql(SentenceBuilder.from(new Sentence({meta: [], tokens: [
+                                        new EmptyToken({
+                                            form: "May be",
+                                            deps: [[[1], new Relation("cop")]],
+                                            misc: ["SpaceAfter=No"]
+                                        }),
+                                        new NominalToken({
+                                            form: "This",
+                                            lemma: "This",
+                                            upos: UPOS.DET,
+                                            headRel: [2, new Relation("nsubj")]
+                                        }),
+                                        new NominalToken({
+                                            form: "is",
+                                            lemma: "be",
+                                            upos: UPOS.VERB,
+                                            headRel: [0, new Relation("root")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "not",
+                                            deps: [[[2], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            form: "officially",
+                                            deps: [[[2, 1], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            deps: [[[2, 2], new Relation("advmod")]]
+                                        }),
+                                        new NominalToken({
+                                            form: "a",
+                                            lemma: "a",
+                                            upos: UPOS.PART,
+                                            headRel: [5, new Relation("det")]
+                                        }),
+                                        new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}),
+                                        new NominalToken({
+                                            form: "book",
+                                            lemma: "book",
+                                            upos: UPOS.NOUN,
+                                            headRel: [2, new Relation("obj")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "yet",
+                                            deps: [[[5], new Relation("advmod")]]
+                                        })
+                                    ]})))
+        })
+        it("Test insert at middle between empty", () => {
+            expect(SentenceBuilder.from(sentence).insert_token(new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}), 4))
+                                    .to.eql(SentenceBuilder.from(new Sentence({meta: [], tokens: [
+                                        new EmptyToken({
+                                            form: "May be",
+                                            deps: [[[1], new Relation("cop")]],
+                                            misc: ["SpaceAfter=No"]
+                                        }),
+                                        new NominalToken({
+                                            form: "This",
+                                            lemma: "This",
+                                            upos: UPOS.DET,
+                                            headRel: [2, new Relation("nsubj")]
+                                        }),
+                                        new NominalToken({
+                                            form: "is",
+                                            lemma: "be",
+                                            upos: UPOS.VERB,
+                                            headRel: [0, new Relation("root")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "not",
+                                            deps: [[[2], new Relation("advmod")]]
+                                        }),
+                                        new NominalToken({form: "Some", lemma: "Some", upos: UPOS.DET}),
+                                        new EmptyToken({
+                                            form: "officially",
+                                            deps: [[[2, 1], new Relation("advmod")]]
+                                        }),
+                                        new EmptyToken({
+                                            deps: [[[2, 2], new Relation("advmod")]]
+                                        }),
+                                        new NominalToken({
+                                            form: "a",
+                                            lemma: "a",
+                                            upos: UPOS.PART,
+                                            headRel: [4, new Relation("det")]
+                                        }),
+                                        new NominalToken({
+                                            form: "book",
+                                            lemma: "book",
+                                            upos: UPOS.NOUN,
+                                            headRel: [2, new Relation("obj")]
+                                        }),
+                                        new EmptyToken({
+                                            form: "yet",
+                                            deps: [[[4], new Relation("advmod")]]
+                                        })
+                                    ]})))
+        })
+    })
+
+    describe("Test remove tokens by using Builder", () => {
+        let sentence: Sentence
+        beforeEach(() => {
+            sentence = new Sentence({meta: [], tokens: [
+                new EmptyToken({
+                    form: "May be",
+                    deps: [[[1], new Relation("cop")]],
+                    misc: ["SpaceAfter=No"]
+                }),
+                new NominalToken({
+                    form: "This",
+                    lemma: "This",
+                    upos: UPOS.DET,
+                    headRel: [2, new Relation("nsubj")]
+                }),
+                new NominalToken({
+                    form: "is",
+                    lemma: "be",
+                    upos: UPOS.VERB,
+                    headRel: [0, new Relation("root")]
+                }),
+                new EmptyToken({
+                    form: "not",
+                    deps: [[[2], new Relation("advmod")]]
+                }),
+                new EmptyToken({
+                    form: "officially",
+                    deps: [[[2, 1], new Relation("advmod")]]
+                }),
+                new EmptyToken({
+                    deps: [[[2, 2], new Relation("advmod")]]
+                }),
+                new NominalToken({
+                    form: "a",
+                    lemma: "a",
+                    upos: UPOS.PART,
+                    headRel: [4, new Relation("det")]
+                }),
+                new NominalToken({
+                    form: "book",
+                    lemma: "book",
+                    upos: UPOS.NOUN,
+                    headRel: [2, new Relation("obj")]
+                }),
+                new EmptyToken({
+                    form: "yet",
+                    deps: [[[4], new Relation("advmod")]]
+                })
+            ]})
+        })
+        it("Test remove at front", () => {
+            SentenceBuilder.from(sentence).remove_token(0)
+            expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                                new NominalToken({
+                                    form: "This",
+                                    lemma: "This",
+                                    upos: UPOS.DET,
+                                    headRel: [2, new Relation("nsubj")]
+                                }),
+                                new NominalToken({
+                                    form: "is",
+                                    lemma: "be",
+                                    upos: UPOS.VERB,
+                                    headRel: [0, new Relation("root")]
+                                }),
+                                new EmptyToken({
+                                    form: "not",
+                                    deps: [[[2], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    form: "officially",
+                                    deps: [[[2, 1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    deps: [[[2, 2], new Relation("advmod")]]
+                                }),
+                                new NominalToken({
+                                    form: "a",
+                                    lemma: "a",
+                                    upos: UPOS.PART,
+                                    headRel: [4, new Relation("det")]
+                                }),
+                                new NominalToken({
+                                    form: "book",
+                                    lemma: "book",
+                                    upos: UPOS.NOUN,
+                                    headRel: [2, new Relation("obj")]
+                                }),
+                                new EmptyToken({
+                                    form: "yet",
+                                    deps: [[[4], new Relation("advmod")]]
+                                })
+                            ]}))
+        })
+        it("Test remove at back", () => {
+            SentenceBuilder.from(sentence).remove_token(sentence.tokens.length - 1)
+            expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                                new EmptyToken({
+                                    form: "May be",
+                                    deps: [[[1], new Relation("cop")]],
+                                    misc: ["SpaceAfter=No"]
+                                }),
+                                new NominalToken({
+                                    form: "This",
+                                    lemma: "This",
+                                    upos: UPOS.DET,
+                                    headRel: [2, new Relation("nsubj")]
+                                }),
+                                new NominalToken({
+                                    form: "is",
+                                    lemma: "be",
+                                    upos: UPOS.VERB,
+                                    headRel: [0, new Relation("root")]
+                                }),
+                                new EmptyToken({
+                                    form: "not",
+                                    deps: [[[2], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    form: "officially",
+                                    deps: [[[2, 1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    deps: [[[2, 2], new Relation("advmod")]]
+                                }),
+                                new NominalToken({
+                                    form: "a",
+                                    lemma: "a",
+                                    upos: UPOS.PART,
+                                    headRel: [4, new Relation("det")]
+                                }),
+                                new NominalToken({
+                                    form: "book",
+                                    lemma: "book",
+                                    upos: UPOS.NOUN,
+                                    headRel: [2, new Relation("obj")]
+                                })
+                            ]}))
+        })
+        it("Test remove first nominal", () => {
+            SentenceBuilder.from(sentence).remove_token(1)
+            expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                                new EmptyToken({
+                                    form: "May be",
+                                    deps: [[[0], new Relation("cop")]],
+                                    misc: ["SpaceAfter=No"]
+                                }),
+                                new NominalToken({
+                                    form: "is",
+                                    lemma: "be",
+                                    upos: UPOS.VERB,
+                                    headRel: [0, new Relation("root")]
+                                }),
+                                new EmptyToken({
+                                    form: "not",
+                                    deps: [[[1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    form: "officially",
+                                    deps: [[[1, 1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    deps: [[[1, 2], new Relation("advmod")]]
+                                }),
+                                new NominalToken({
+                                    form: "a",
+                                    lemma: "a",
+                                    upos: UPOS.PART,
+                                    headRel: [3, new Relation("det")]
+                                }),
+                                new NominalToken({
+                                    form: "book",
+                                    lemma: "book",
+                                    upos: UPOS.NOUN,
+                                    headRel: [1, new Relation("obj")]
+                                }),
+                                new EmptyToken({
+                                    form: "yet",
+                                    deps: [[[3], new Relation("advmod")]]
+                                })
+                            ]}))
+        })
+        it("Test remove nominal before empty", () => {
+            SentenceBuilder.from(sentence).remove_token(2)
+            expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                                new EmptyToken({
+                                    form: "May be",
+                                    deps: [[[1], new Relation("cop")]],
+                                    misc: ["SpaceAfter=No"]
+                                }),
+                                new NominalToken({
+                                    form: "This",
+                                    lemma: "This",
+                                    upos: UPOS.DET,
+                                    headRel: [1, new Relation("nsubj")]
+                                }),
+                                new EmptyToken({
+                                    form: "not",
+                                    deps: [[[1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    form: "officially",
+                                    deps: [[[1, 1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    deps: [[[1, 2], new Relation("advmod")]]
+                                }),
+                                new NominalToken({
+                                    form: "a",
+                                    lemma: "a",
+                                    upos: UPOS.PART,
+                                    headRel: [3, new Relation("det")]
+                                }),
+                                new NominalToken({
+                                    form: "book",
+                                    lemma: "book",
+                                    upos: UPOS.NOUN,
+                                    headRel: [1, new Relation("obj")]
+                                }),
+                                new EmptyToken({
+                                    form: "yet",
+                                    deps: [[[3], new Relation("advmod")]]
+                                })
+                            ]}))
+        })
+
+        it("Test remove empty token that will cause subsequence id become zero", () => {
+            SentenceBuilder.from(sentence).remove_token(3)
+            expect(sentence).to.eql(new Sentence({meta: [], tokens: [
+                                new EmptyToken({
+                                    form: "May be",
+                                    deps: [[[1], new Relation("cop")]],
+                                    misc: ["SpaceAfter=No"]
+                                }),
+                                new NominalToken({
+                                    form: "This",
+                                    lemma: "This",
+                                    upos: UPOS.DET,
+                                    headRel: [2, new Relation("nsubj")]
+                                }),
+                                new NominalToken({
+                                    form: "is",
+                                    lemma: "be",
+                                    upos: UPOS.VERB,
+                                    headRel: [0, new Relation("root")]
+                                }),
+                                new EmptyToken({
+                                    form: "officially",
+                                    deps: [[[2, 1], new Relation("advmod")]]
+                                }),
+                                new EmptyToken({
+                                    deps: [[[2, 1], new Relation("advmod")]]
+                                }),
+                                new NominalToken({
+                                    form: "a",
+                                    lemma: "a",
+                                    upos: UPOS.PART,
+                                    headRel: [4, new Relation("det")]
+                                }),
+                                new NominalToken({
+                                    form: "book",
+                                    lemma: "book",
+                                    upos: UPOS.NOUN,
+                                    headRel: [2, new Relation("obj")]
+                                }),
+                                new EmptyToken({
+                                    form: "yet",
+                                    deps: [[[4], new Relation("advmod")]]
+                                })
+                            ]
+                        }))
+        })
+    })
+    describe("Test fix self dependencies", () => {
+        let sentence: Sentence
+        beforeEach(() => {
+            sentence = new Sentence({
+                tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "officially",
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [4, new Relation("det")]
+                    }),
+                    new NominalToken({
+                        form: "book",
+                        lemma: "book",
+                        upos: UPOS.NOUN,
+                        headRel: [2, new Relation("obj")]
+                    }),
+                    new EmptyToken({
+                        form: "yet",
+                        deps: [[[4], new Relation("advmod")]]
+                    })
+                ]
+            })
+        })
+        it("Test fix self reference", () => {
+            let builder = SentenceBuilder.from(sentence)
+            builder.remove_token(5)
+            builder.remove_self_dependencies()
+            expect(sentence).to.eql(new Sentence({
+                tokens: [
+                    new NominalToken({
+                        form: "This",
+                        lemma: "This",
+                        upos: UPOS.DET,
+                        headRel: [2, new Relation("nsubj")]
+                    }),
+                    new NominalToken({
+                        form: "is",
+                        lemma: "be",
+                        upos: UPOS.VERB,
+                        headRel: [0, new Relation("root")]
+                    }),
+                    new EmptyToken({
+                        form: "not",
+                        deps: [[[2], new Relation("advmod")]]
+                    }),
+                    new EmptyToken({
+                        form: "officially",
+                        deps: [[[2, 1], new Relation("advmod")]]
+                    }),
+                    new NominalToken({
+                        form: "a",
+                        lemma: "a",
+                        upos: UPOS.PART,
+                        headRel: [2, new Relation("det")]
+                    }),
+                    new EmptyToken({
+                        form: "yet",
+                        deps: [[[3], new Relation("advmod")]]
+                    })
+                ]
+            }))
+        })
     })
 })

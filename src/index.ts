@@ -2,6 +2,7 @@ import XRegExp from 'xregexp'
 import {createReadStream, createWriteStream} from 'fs'
 import {createInterface, Interface} from 'readline'
 import {Readable, Writable} from 'stream'
+import assert from 'assert'
 
 /**
  * Attempt to convert given token to string.
@@ -31,34 +32,17 @@ function tokenToString({
     feats?: Feature[],
     head?: HeadId,
     deprel?: Relation | string,
-    deps?: [number[], Relation| string][],
+    deps?: AdvanceDep[],
     misc?: string[]
 }): string {
     if (id.length == 2) {
         return `${id[0]}-${id[1]}\t${form}\t_\t_\t_\t_\t_\t_\t_\t${misc?misc.join("|"):"_"}`
     } else {
-        return `${form}\t${lemma}\t${upos?upos.toString():"_"}\t${xpos?xpos.toString():"_"}\t${feats?feats.map((f)=>f.toString()).join("|"):"_"}\t${head?head:"_"}\t${deprel}\t${deps?deps.map(([id, rel]) => `${id.length == 1?id[0]:id[0] + "." + id[1]}:${rel}`).join("|"):"_"}\t${misc?misc.join("|"):"_"}`
+        let deps_str = "_"
+        if (deps && deps.length > 0)
+            deps_str = deps.map(([id, rel]) => `${id.length == 1?id[0]:id[0] + "." + id[1]}:${rel}`).join("|")
+        return `${form}\t${lemma}\t${upos?upos.toString():"_"}\t${xpos?xpos.toString():"_"}\t${feats?feats.map((f)=>f.toString()).join("|"):"_"}\t${head?head:"_"}\t${deprel}\t${deps_str}\t${misc?misc.join("|"):"_"}`
     }
-}
-
-/**
- * Sort given deps as required by `conllu` specification that deps must be sorted 
- * by head. If head is equals, it must be sorted by relation name in alphabetic ascending order.
- * @param deps An array of tuple with `Head` and `DepsRelation` where `Head` can either be 1 integer element tuple
- * or 2 integer elements tuple if `Head` is `EmptyToken`. For example `[1]` if head is `NominalToken` and
- * `[1, 1]` if head is `EmptyToken`.
- */
-function sortDeps(deps: [[HeadId] | [HeadId, EmptyId], DepsRelation][]): [[HeadId] | [HeadId, EmptyId], DepsRelation][] {
-    return deps.sort((d1, d2) => {
-        let headCmp = d1[0][0] - d2[0][0]
-        if (headCmp != 0) {
-            return headCmp // HeadIds have diff
-        } else {
-            if (d1[0][1] && d2[0][1]) {
-                return d1[0][1] - d2[0][1] // compare Empty part
-            }
-        }
-    })
 }
 
 /**
@@ -583,6 +567,128 @@ export class Comment {
     }
 }
 
+/** All available type of token in this package */
+export enum TokenType {
+    Empty,
+    Compound,
+    Nominal
+}
+
+/** 
+ * This class is specialized Array to store an ID of token for token.
+ * The index of this object should reflect the index of token in sentence.
+ * If the ID at given index is `undefined`, it mean that index contains `CompoundToken`.
+ * CompoundToken doesn't have it own ID so it become undefined.
+ * 
+ * To maintain validity of ID, you should use `insert` or `remove_chunk` method
+ * to add or remove token from this class.
+ * 
+ * To get an ID of token, simply index directly into this object.
+ */
+export class TokenIdMap extends Array<number | [number, number]> {
+    /**
+     * Insert a token of given token type at given index for given `copy` times.
+     * Default `copy` argument is 1 so it will insert a token of given type exactly once
+     * at given `index`.
+     * @param index An index to insert the new token
+     * @param type A type of token to be insert
+     * @param copy Number of copy to be insert. Default to 1 which mean insert only given token once.
+     */
+    insert: (index: number, type: TokenType, copy?: number) => void = function(index: number, type: TokenType, copy = 1) {
+        assert(index <= this.length, "Index out of bound")
+        if (type == TokenType.Nominal) {
+            // Scan for last ID
+            let last_id = 0
+            if (index != 0)
+                for (let i = index - 1; i >= 0; i--) {
+                    if (typeof this[i] == "number") {
+                        last_id = this[i] as number
+                        break
+                    }
+                }
+            last_id++
+            let new_id = Array.from({length: copy}, (_, i) => i + last_id)
+            // Insert a token
+            let rhs = this.splice(index, this.length - index, ...new_id)
+
+            if (rhs && rhs.length > 0) {
+                // Update all id to the right hand side
+                let i = 0
+                if (rhs[0] instanceof Array) {
+                    for (; i < rhs.length && rhs[i] instanceof Array; i++) {
+                        // Restart empty_id of empty token as it is immediate next to nominal token
+                        (rhs[i] as number[])[0] = new_id[new_id.length - 1];
+                        (rhs[i] as number[])[1] = i + 1
+                    }
+                }
+                // Shift all token to the right by 1
+                for (; i < rhs.length; i++) {
+                    if (typeof rhs[i] == "number") {
+                        (rhs[i] as number) += copy
+                    } else {
+                        (rhs[i] as number[])[0] += copy
+                    }
+                }
+
+                // Append right hand side back
+                this.push(...rhs)
+            }
+        } else if (type == TokenType.Empty) {
+            // Insert an empty token
+            // Calculate id of inserting token
+            let id = 0
+            let empty_id = 1
+            if (index != 0)
+                if (typeof this[index - 1] == "number") {
+                    id = this[index - 1] as number 
+                } else {
+                    id = (this[index - 1] as number[])[0]
+                    empty_id = (this[index - 1] as number[])[1] + 1
+                }
+            // Insert a token
+            let new_id: [number, number][] = Array.from({length: copy}, (_, i) => [id, i + empty_id])
+            let rhs = this.splice(index, this.length - index, ...new_id)
+            if (rhs && rhs.length > 0) {
+                // Update empty token on right hand side
+                for (let i = 0; i < rhs.length && rhs[i] instanceof Array; i++) {
+                    (rhs[i] as number[])[1] += copy
+                }
+
+                // Append all right hand side back
+                this.push(...rhs)
+            }
+        } else {
+            // Compound token
+            this.splice(index, 0, ...(new Array(copy)))
+        }
+    }
+    remove_chunk: (index: number, count?: number) => void = function(index: number, count = 1) {
+        assert(index + count <= this.length, "Index out of bound")
+        if (count == 0) return
+        this.splice(index, count)
+        let id = 0
+        let empty_id = 0
+        if (index > 1) {
+            let lhs = index - 1
+            if (this[lhs] instanceof Array) {
+                id = (this[lhs] as number[])[0]
+                empty_id = (this[lhs] as number[])[1]
+            } else {
+                id = this[lhs] as number
+            }
+        }
+        for (let i = index; i < this.length; i++) {
+            if (typeof this[i] == "number") {
+                this[i] = ++id
+                empty_id = 0
+            } else {
+                (this[i] as number[])[0] = id;
+                (this[i] as number[])[1] = ++empty_id
+            }
+        }
+    }
+}
+
 /**
  * A validation result for calling validate on each `Sentence`.
  * It may also throw some exceptions such as "Head of deps that reference to hidden/empty token must be in [integer, integer] format".
@@ -599,6 +705,8 @@ export enum SentenceValidationResult {
     CompoundStartAfterTokenError, 
     /** Empty token after compound token error */
     EmptyAfterCompoundError, 
+    /** Empty token have undefined or zero element deps array */
+    EmptyTokenWithoutDepsError,
     /** Head index is larger than number of tokens or less than 1 error */
     HeadOutOfBoundError, 
     /** NominalToken with head with missing deprel error */
@@ -784,6 +892,8 @@ export class Sentence {
                     return SentenceValidationResult.CompoundStartAfterTokenError
                 } 
             } else if (token instanceof EmptyToken) {
+                if (token.deps == undefined || token.deps.length == 0)
+                    return SentenceValidationResult.EmptyTokenWithoutDepsError
                 hiddenCount[tokenCount]++
                 simplifyDeps(token.deps)
 
@@ -862,7 +972,7 @@ export class CompoundToken implements Token {
 }
 
 export type HeadId = number
-export type AdvanceDep = [[HeadId] | [HeadId, EmptyId], DepsRelation]
+export type AdvanceDep = [[number] | [number, number], DepsRelation]
 
 /**
  * Nominal token is a basic type of token which must exist in `Sentence` in order to
@@ -880,15 +990,12 @@ export class NominalToken implements Token {
     upos: UPOS
     xpos?: XPOS
     feats?: Feature[]
-    head?: HeadId
+    head?: number
     deprel?: Relation
     deps?: AdvanceDep[]
     misc?: string[]
 
-    constructor({form, lemma, upos, xpos, feats, headRel, deps, misc}: {form: string, lemma: string, upos: UPOS, xpos?: XPOS, feats?: Feature[], headRel?: [HeadId, Relation], deps?: [[HeadId] | [HeadId, EmptyId], DepsRelation][], misc?: string[]}) {
-        if (deps && !deps.every((dep) => dep[0].length == 1 || dep[0].length == 2)) {
-            throw "NominalToken `deps` id must be array with either 1 or 2 number"
-        }
+    constructor({form, lemma, upos, xpos, feats, headRel, deps, misc}: {form: string, lemma: string, upos: UPOS, xpos?: XPOS, feats?: Feature[], headRel?: [number, Relation], deps?: AdvanceDep[], misc?: string[]}) {
         this.form = form
         this.lemma = lemma
         this.upos = upos
@@ -896,7 +1003,7 @@ export class NominalToken implements Token {
         this.feats = feats?feats.sort((f1, f2) => f1.name.localeCompare(f2.name)):undefined
         this.head = headRel?headRel[0]:undefined
         this.deprel = headRel?headRel[1]:undefined
-        this.deps = deps?sortDeps(deps):undefined
+        this.deps = deps?deps.sort():undefined
         this.misc = misc
     }
 
@@ -937,13 +1044,21 @@ export class EmptyToken implements Token {
     deps: AdvanceDep[]
     misc?: string[]
 
-    constructor({form, lemma, upos, xpos, feats, deps, misc}: {form?: string, lemma?: string, upos?: UPOS, xpos?: XPOS, feats?: Feature[], deps: [[HeadId] | [HeadId, EmptyId], DepsRelation][], misc?: string[]}) {
+    constructor({form, lemma, upos, xpos, feats, deps, misc}: {form?: string, lemma?: string, upos?: UPOS, xpos?: XPOS, feats?: Feature[], deps: AdvanceDep[], misc?: string[]}) {
         this.form = form
         this.lemma = lemma
         this.upos = upos
         this.xpos = xpos
         this.feats = feats?feats.sort((f1, f2) => f1.name.localeCompare(f2.name)):undefined
-        this.deps = deps?sortDeps(deps):undefined
+        this.deps = deps?deps.sort((a, b) => {
+            if (a[0] < b[0]) return -1
+            else if (a[0] > b[0]) return 1
+            else {
+                if (a[1] < b[1]) return -1
+                else if (a[1] > b[1]) return 1
+                else return 0
+            }
+        }):undefined
         this.misc = misc
     }
 

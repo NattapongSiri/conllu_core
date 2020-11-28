@@ -107,16 +107,23 @@ The constructor take an object with fields `key` and `value`. Both of them must 
 1. `upos` - A standard part-of-speech of type `UPOS` enum.
 1. `xpos` - A language specific part-of-speech of class `XPOS`. Each language should have it own concrete class extends `XPOS` class.
 1. `feats` - An array features of class `Feature`. It is a kind of `key` and `value` pair.
-1. `head` - A `number` that reference to existing token by index.
+1. `head` - A `number` that reference to existing token by `id`.
 1. `deprel` - A type of relation for field `head`. It must be an instance of `Relation` class.
 1. `deps` - is a tuple of `id` value and `DepsRelation` object. `id` can be either `[number]` or `[number, number]`
 1. `misc` - is an array of `string`
+
+When specifying `id`, keep in mind that `id` is not index. `index` is an integer starting from 0 and increment by 1 on every token in `Sentence` regardless of type of `Token`. However, `id` starting from 1. It is increment only if next token is of the same type. For example, 
+- 3 `NominalToken` in sequence will have `id` of 1, 2, and 3. 
+- A `NominalToken` follow by an `EmptyToken` follow by a `NominalToken` will have `id` of 1, 1.1, and 2.
+- A `CompoundToken` refer to next two tokens follow a `NominalToken` follow by an `EmptyToken` follow by a `NominalToken` will have `id` of 1-2, 1, 1.2, and 2.
+
+`head` field must be point to `NominalToken` only. However, `deps` field may refer to either `NominalToken` or `EmptyToken`.
 
 The constructor take a JSON object with 8 keys. It is similar to fields of `NominalToken` except that it merge `head` and `deprel` into one field call `headRel`. The type of `headRel` is tuple of `number` and `Relation`. All other fields are the same as fields describe above. For example: `new NominalToken({form: 'word', lemma: 'root', upos: UPOS.NOUN, xpos: new LanguageSpecificXPOS('NN'), feats: [new Feature('Gender', ['Neut'])], headRel: [2, new Relation("conj")], deps: [[2], new DepsRelation('conj')], misc=['SpaceAfter=No']})`.
 Only `form`, `lemma`, and `upos` is mandatory field in JSON object. All other fields are optional.
 
 `CompoundToken` have 3 fields:
-1. `id` - is a tuple of two integer referring to id of `NominalToken`
+1. `id` - is a tuple of two integer referring to id of `NominalToken`. Keep in mind that when insert/remove/merge/split `NominalToken` it cause their `id` to change.
 1. `form` - is a surface form for this compound token.
 1. `misc` - is an array of `string`
 
@@ -191,3 +198,16 @@ Notice that last line will have no `\u000a`.
 Notice that there's one empty line between two sentences but last line of document will have no `\u000a`.
 
 In any case, if you parse a text with `XPOS` field but supply no implementation of `XPOSParer` concrete class, it will ignore `xpos` field. 
+
+## `builder.SentenceBuilder` to ease some dependencies tangle
+`SentenceBuilder` can be instantiate by `new SentenceBuilder()` or by associate it with existing `Sentence` by `SentenceBuilder.from(sentence)` where `sentence` is an object of class `Sentence`.
+There's following utilities method that modify the sentence and keep dependencies "valid".
+It doesn't mean that it will auto align dependencies using context nor semantic. The obvious case where user need to check the dependencies are when user `insert_token` or `remove_token` which cause `EmptyToken` around insertion/removal point shift it semantic. For example, if there is a sequence of `EmptyToken` and `Empty Token` which the later one has dependencies to the first one and `NominalToken` is inserted in between the two then the later `EmptyToken` will still have dependency pointed to the first `EmptyToken`. It may or may not be semantically correct depending on language being model.
+Following are some useful method:
+- `merge` - To merge tokens into one. It take inclusive index of token at both start and end. Type of token at both end must have the same type. It doesn't yet support merging compound token yet. It support custom merging strategy by extend class `MergePolicy`. See class `MergePolicy` for default operation on merge.
+- `split` - To split a token into multiple tokens. It take an array of index of character position in `form` field of token. Similar to `merge`, user can define custom strategy on splitting token by extends a class `SplitPolicy`.
+- `insert_token` - Insert a new token at specific index.
+- `remove_token` - Remove a token from specific index and resolve dependencies according to given `HeadPolicy`. This operation may cause some token to have a self dependency.
+- `upsert_head_by_index` - Set a new head to a token at given index.
+- `upsert_dep_by_index` - Update or insert a dependency to a token at given index.
+- `remove_self_dependencies` - To automatically remove all dependencies that point to itself. This operation may result in validation failure as some `deps` of some `EmptyToken` may become empty.
