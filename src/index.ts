@@ -159,7 +159,7 @@ function parseToken(str: string, Parser?: XPOSParser): (CompoundToken | EmptyTok
     if (isNaN(id) || id != +tokens[0]) {
         throw "ID must either be <int>.<int> or <int>-<int> or <int> such as 1, 1.2, or 1-2"
     }
-    return [id, parseNominalUncheck(tokens.slice(1))]
+    return [id, parseNominalUncheck(tokens.slice(1), Parser)]
 }
 
 /**
